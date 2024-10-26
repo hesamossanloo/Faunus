@@ -1,11 +1,11 @@
 export default {
   expo: {
-    name: "Faunos",
-    slug: "Faunos",
+    name: "Faunus",
+    slug: "Faunus",
     version: "1.0.0",
     orientation: "portrait",
     icon: "./assets/images/icon.png",
-    scheme: "faunos",
+    scheme: "faunus",
     userInterfaceStyle: "automatic",
     splash: {
       image: "./assets/images/splash.png",
@@ -14,7 +14,7 @@ export default {
     },
     ios: {
       supportsTablet: true,
-      bundleIdentifier: "no.skogapp.faunos",
+      bundleIdentifier: "no.skogapp.faunus",
       splash: {
         image: "./assets/images/splash.png",
         resizeMode: "contain",
@@ -30,7 +30,7 @@ export default {
         foregroundImage: "./assets/images/adaptive-icon.png",
         backgroundColor: "#ffffff",
       },
-      package: "no.skogapp.faunos",
+      package: "no.skogapp.faunus",
       permissions: ["ACCESS_FINE_LOCATION", "ACCESS_COARSE_LOCATION"],
     },
     web: {

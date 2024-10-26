@@ -1,5 +1,6 @@
-## Faunos App
-FAUNOS (Faunos) was a god of forests. Faunos is a React Native application designed for forest management. The app supports both iOS and Android platforms and offers a range of features to help users manage forests efficiently.
+## Faunus App
+
+FAUNUS (Faunus) was a god of forests. Faunus is a React Native application designed for forest management. The app supports both iOS and Android platforms and offers a range of features to help users manage forests efficiently.
 
 ### Features
 
@@ -10,22 +11,22 @@ FAUNOS (Faunos) was a god of forests. Faunos is a React Native application desig
 ### Installation
 
 1. Clone the repository:
-    ```sh
-    git clone https://github.com/yourusername/faunos.git
-    ```
+   ```sh
+   git clone https://github.com/yourusername/faunus.git
+   ```
 2. Navigate to the project directory:
-    ```sh
-    cd faunos
-    ```
+   ```sh
+   cd faunus
+   ```
 3. Install dependencies:
-    ```sh
-    yarn install
-    ```
+   ```sh
+   yarn install
+   ```
 4. Start the app:
-    ```sh
-    npx expo start
-    ```
-In the output, you'll find options to open the app in a
+   `sh
+npx expo start
+`
+   In the output, you'll find options to open the app in a
 
 - [development build](https://docs.expo.dev/develop/development-builds/introduction/)
 - [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
@@ -43,6 +44,7 @@ Given you have set up your dev env following the Expo docs
 ```sh
 npx expo run:ios
 ```
+
 #### Android
 
 ```sh
@@ -55,4 +57,4 @@ This project is proprietary and developed for the Skogapp Joint Venture. All rig
 
 ### Contact
 
-For any inquiries or support, please contact us at support@faunos.com.
+For any inquiries or support, please contact us at support@faunus.com.
