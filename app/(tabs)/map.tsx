@@ -6,6 +6,7 @@ import Mapbox, {
   MapView,
   ShapeSource,
 } from "@rnmapbox/maps";
+import { OnPressEvent } from "@rnmapbox/maps/lib/typescript/src/types/OnPressEvent";
 import * as Location from "expo-location";
 import { doc, getDoc } from "firebase/firestore";
 import { useEffect, useState } from "react";
@@ -13,15 +14,17 @@ import { Alert } from "react-native";
 
 Mapbox.setAccessToken(process.env.EXPO_PUBLIC_MAPBOX_PUBLIC_KEY ?? "");
 
-// Define the type for camera bounds
 type CameraBounds = {
   ne: [number, number];
   sw: [number, number];
 };
 
 export default function MapScreen() {
-  const [geoJsonData, setGeoJsonData] = useState(null);
+  const [geoJsonData, setGeoJsonData] =
+    useState<GeoJSON.FeatureCollection | null>(null);
   const [cameraBounds, setCameraBounds] = useState<CameraBounds | null>(null);
+  const [fillColor, setFillColor] = useState("rgba(0, 0, 255, 0.5)");
+  const [fillOutlineColor, setFillOutlineColor] = useState("blue");
 
   useEffect(() => {
     (async () => {
@@ -32,6 +35,7 @@ export default function MapScreen() {
       }
     })();
   }, []);
+
   useEffect(() => {
     // Get the currently logged-in user from Firebase Auth
     const user = auth.currentUser;
@@ -80,12 +84,30 @@ export default function MapScreen() {
     }
   };
 
+  const handleShapePress = (event: OnPressEvent) => {
+    const feature: GeoJSON.Feature = event.features[0]; // Assuming you want the first feature
+    if (feature && feature.geometry) {
+      const bounds = calculateBoundingBox(feature);
+      setCameraBounds(bounds);
+      setFillColor("rgba(255, 255, 0, 0.5)");
+      setFillOutlineColor("yellow");
+    }
+  };
+
+  const calculateBoundingBox = (feature: GeoJSON.Feature) => {
+    if (!feature.geometry || !("coordinates" in feature.geometry)) {
+      return null;
+    }
+    const flatCoordinates = feature.geometry.coordinates.flat(2) as number[];
+    const lats = flatCoordinates.filter((_, i) => i % 2 === 1);
+    const lngs = flatCoordinates.filter((_, i) => i % 2 === 0);
+    const ne: [number, number] = [Math.max(...lngs), Math.max(...lats)];
+    const sw: [number, number] = [Math.min(...lngs), Math.min(...lats)];
+    return { ne, sw };
+  };
+
   return (
-    <MapView
-      style={{ flex: 1 }}
-      styleURL="mapbox://styles/mapbox/satellite-v9"
-      projection="globe"
-    >
+    <MapView style={{ flex: 1 }} styleURL="mapbox://styles/mapbox/satellite-v9">
       {cameraBounds && (
         <Camera
           bounds={{
@@ -107,12 +129,17 @@ export default function MapScreen() {
         pulsing={{ isEnabled: true }}
       />
       {geoJsonData && (
-        <ShapeSource id="forestTeig" shape={geoJsonData}>
+        <ShapeSource
+          id="forestTeig"
+          shape={geoJsonData}
+          tolerance={0.1}
+          onPress={handleShapePress}
+        >
           <FillLayer
             id="fillLayer"
             style={{
-              fillColor: "rgba(0, 0, 255, 0.5)",
-              fillOutlineColor: "blue",
+              fillColor: fillColor,
+              fillOutlineColor: fillOutlineColor,
             }}
           />
         </ShapeSource>
