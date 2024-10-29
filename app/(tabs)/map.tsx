@@ -1,3 +1,5 @@
+import SelectedBottomSheet from "@/components/SelectedBottomSheet";
+import { useProperty } from "@/providers/PropertyProvider";
 import { auth, db } from "@/services/firebaseConfig";
 import Mapbox, {
   Camera,
@@ -9,7 +11,7 @@ import Mapbox, {
 import { OnPressEvent } from "@rnmapbox/maps/lib/typescript/src/types/OnPressEvent";
 import * as Location from "expo-location";
 import { doc, getDoc } from "firebase/firestore";
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Alert } from "react-native";
 
 Mapbox.setAccessToken(process.env.EXPO_PUBLIC_MAPBOX_PUBLIC_KEY ?? "");
@@ -25,6 +27,7 @@ export default function MapScreen() {
   const [cameraBounds, setCameraBounds] = useState<CameraBounds | null>(null);
   const [fillColor, setFillColor] = useState("rgba(0, 0, 255, 0.5)");
   const [fillOutlineColor, setFillOutlineColor] = useState("blue");
+  const { isShapeSelected, toggleShapeSelection } = useProperty();
 
   useEffect(() => {
     (async () => {
@@ -85,12 +88,19 @@ export default function MapScreen() {
   };
 
   const handleShapePress = (event: OnPressEvent) => {
-    const feature: GeoJSON.Feature = event.features[0]; // Assuming you want the first feature
+    const feature: GeoJSON.Feature = event.features[0]; // Assuming we want the first feature
     if (feature && feature.geometry) {
       const bounds = calculateBoundingBox(feature);
       setCameraBounds(bounds);
-      setFillColor("rgba(255, 255, 0, 0.5)");
-      setFillOutlineColor("yellow");
+      if (isShapeSelected) {
+        setFillColor("rgba(0, 0, 255, 0.5)");
+        setFillOutlineColor("blue");
+      } else {
+        setFillColor("rgba(255, 255, 0, 0.5)");
+        setFillOutlineColor("yellow");
+      }
+
+      toggleShapeSelection();
     }
   };
 
@@ -107,43 +117,50 @@ export default function MapScreen() {
   };
 
   return (
-    <MapView style={{ flex: 1 }} styleURL="mapbox://styles/mapbox/satellite-v9">
-      {cameraBounds && (
-        <Camera
-          bounds={{
-            ne: cameraBounds.ne,
-            sw: cameraBounds.sw,
-          }}
-          padding={{
-            paddingLeft: 50,
-            paddingRight: 50,
-            paddingTop: 50,
-            paddingBottom: 50,
-          }}
-          animationDuration={1000}
-        />
-      )}
-      <LocationPuck
-        puckBearingEnabled
-        puckBearing="heading"
-        pulsing={{ isEnabled: true }}
-      />
-      {geoJsonData && (
-        <ShapeSource
-          id="forestTeig"
-          shape={geoJsonData}
-          tolerance={0.1}
-          onPress={handleShapePress}
-        >
-          <FillLayer
-            id="fillLayer"
-            style={{
-              fillColor: fillColor,
-              fillOutlineColor: fillOutlineColor,
+    <>
+      <MapView
+        style={{ flex: 1 }}
+        styleURL="mapbox://styles/mapbox/satellite-v9"
+        scaleBarEnabled={false}
+      >
+        {cameraBounds && (
+          <Camera
+            bounds={{
+              ne: cameraBounds.ne,
+              sw: cameraBounds.sw,
             }}
+            padding={{
+              paddingLeft: 50,
+              paddingRight: 50,
+              paddingTop: 50,
+              paddingBottom: 50,
+            }}
+            animationDuration={1000}
           />
-        </ShapeSource>
-      )}
-    </MapView>
+        )}
+        <LocationPuck
+          puckBearingEnabled
+          puckBearing="heading"
+          pulsing={{ isEnabled: true }}
+        />
+        {geoJsonData && (
+          <ShapeSource
+            id="forestTeig"
+            shape={geoJsonData}
+            tolerance={0.1}
+            onPress={handleShapePress}
+          >
+            <FillLayer
+              id="fillLayer"
+              style={{
+                fillColor: fillColor,
+                fillOutlineColor: fillOutlineColor,
+              }}
+            />
+          </ShapeSource>
+        )}
+      </MapView>
+      <SelectedBottomSheet />
+    </>
   );
 }

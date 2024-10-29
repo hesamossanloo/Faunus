@@ -14,6 +14,7 @@ import { useEffect, useState } from "react";
 import "react-native-reanimated";
 
 import { useColorScheme } from "@/hooks/useColorScheme";
+import { PropertyProvider } from "@/providers/PropertyProvider";
 import { auth } from "@/services/firebaseConfig";
 import React from "react";
 import { StyleSheet, Text, View } from "react-native";
@@ -73,14 +74,16 @@ export default function RootLayout() {
 
   return (
     <ThemeProvider value={colorScheme === "dark" ? DarkTheme : DefaultTheme}>
-      <Stack>
-        <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-        <Stack.Screen
-          name="login"
-          options={{ title: "Login", headerShown: true }}
-        />
-        <Stack.Screen name="+not-found" />
-      </Stack>
+      <PropertyProvider>
+        <Stack>
+          <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+          <Stack.Screen
+            name="login"
+            options={{ title: "Login", headerShown: true }}
+          />
+          <Stack.Screen name="+not-found" />
+        </Stack>
+      </PropertyProvider>
     </ThemeProvider>
   );
 }
