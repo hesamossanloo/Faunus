@@ -15,7 +15,7 @@ import { OnPressEvent } from "@rnmapbox/maps/lib/typescript/src/types/OnPressEve
 import * as Location from "expo-location";
 import { doc, getDoc } from "firebase/firestore";
 import React, { useEffect, useState } from "react";
-import { Alert, StyleSheet } from "react-native";
+import { Alert, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 
 Mapbox.setAccessToken(process.env.EXPO_PUBLIC_MAPBOX_PUBLIC_KEY ?? "");
 
@@ -31,6 +31,11 @@ export default function MapScreen() {
   const [fillColor, setFillColor] = useState("rgba(0, 0, 255, 0.5)");
   const [fillOutlineColor, setFillOutlineColor] = useState("blue");
   const [comment, setComment] = useState("");
+  const [isSkogbruksplanLayerVisible, setIsSkogbruksplanLayerVisible] =
+    useState(true);
+  const [isForestTeigLayerVisible, setIsForestTeigLayerVisible] =
+    useState(true);
+
   const {
     isShapeSelected,
     toggleShapeSelection,
@@ -128,7 +133,7 @@ export default function MapScreen() {
   return (
     <>
       <MapView
-        style={{ flex: 1 }}
+        style={styles.map}
         styleURL="mapbox://styles/mapbox/satellite-v9"
         scaleBarEnabled={false}
       >
@@ -152,7 +157,7 @@ export default function MapScreen() {
           puckBearing="heading"
           pulsing={{ isEnabled: true }}
         />
-        {geoJsonData && (
+        {isForestTeigLayerVisible && geoJsonData && (
           <ShapeSource
             id="forestTeig"
             shape={geoJsonData}
@@ -160,7 +165,7 @@ export default function MapScreen() {
             onPress={handleShapePress}
           >
             <FillLayer
-              id="fillLayer"
+              id="forestTeigLayer"
               style={{
                 fillColor: fillColor,
                 fillOutlineColor: fillOutlineColor,
@@ -168,20 +173,39 @@ export default function MapScreen() {
             />
           </ShapeSource>
         )}
-        <RasterSource
-          id="skogbruksplanSource"
-          tileUrlTemplates={[
-            "https://wms.nibio.no/cgi-bin/skogbruksplan?bbox={bbox-epsg-3857}&format=image/png&service=WMS&version=1.1.1&request=GetMap&srs=EPSG:3857&transparent=true&width=256&height=256&layers=hogstklasser",
-          ]}
-          tileSize={256}
-        >
-          <RasterLayer
-            id="skogbruksplanLayer"
-            sourceID="skogbruksplanSource"
-            style={{ rasterOpacity: 0.8 }}
-          />
-        </RasterSource>
+        {isSkogbruksplanLayerVisible && (
+          <RasterSource
+            id="skogbruksplanSource"
+            tileUrlTemplates={[
+              "https://wms.nibio.no/cgi-bin/skogbruksplan?bbox={bbox-epsg-3857}&format=image/png&service=WMS&version=1.1.1&request=GetMap&srs=EPSG:3857&transparent=true&width=256&height=256&layers=hogstklasser",
+            ]}
+            tileSize={256}
+          >
+            <RasterLayer
+              id="skogbruksplanLayer"
+              sourceID="skogbruksplanSource"
+              style={{ rasterOpacity: 0.8 }}
+              belowLayerID="forestTeigLayer" // Ensure this layer is above the Skogbruksplan layer
+            />
+          </RasterSource>
+        )}
       </MapView>
+      <View style={styles.layersMenu}>
+        <TouchableOpacity
+          style={styles.button}
+          onPress={() =>
+            setIsSkogbruksplanLayerVisible(!isSkogbruksplanLayerVisible)
+          }
+        >
+          <Text>Skogbruksplan</Text>
+        </TouchableOpacity>
+        <TouchableOpacity
+          style={{ ...styles.button, marginTop: 5 }}
+          onPress={() => setIsForestTeigLayerVisible(!isForestTeigLayerVisible)}
+        >
+          <Text>Matrikkel</Text>
+        </TouchableOpacity>
+      </View>
       {isCommentVisible && (
         <Comment comment={comment} setComment={setComment} />
       )}
@@ -191,10 +215,22 @@ export default function MapScreen() {
 }
 
 const styles = StyleSheet.create({
+  map: {
+    flex: 1,
+  },
   button: {
     backgroundColor: "green",
     padding: 10,
     borderRadius: 5,
     alignItems: "center",
+  },
+  layersMenu: {
+    position: "absolute",
+    bottom: 10,
+    left: 10,
+    backgroundColor: "white",
+    padding: 10,
+    borderRadius: 5,
+    elevation: 5,
   },
 });
