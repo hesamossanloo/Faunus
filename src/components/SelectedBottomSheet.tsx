@@ -5,7 +5,8 @@ import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 
 const SelectedBottomSheet: React.FC = () => {
   const bottomSheetRef = useRef<BottomSheet>(null);
-  const { isShapeSelected } = useProperty();
+  const { isShapeSelected, isCommentVisible, setCommentVisible } =
+    useProperty();
 
   useEffect(() => {
     if (isShapeSelected) {
@@ -20,7 +21,7 @@ const SelectedBottomSheet: React.FC = () => {
       snapPoints={[200]}
       enablePanDownToClose
       ref={bottomSheetRef}
-      backgroundStyle={{ backgroundColor: "#414442 " }}
+      backgroundStyle={{ backgroundColor: "gray" }}
     >
       <BottomSheetView style={styles.viewContainer}>
         <Text style={styles.title}>Selected Property</Text>
@@ -37,10 +38,10 @@ const SelectedBottomSheet: React.FC = () => {
           <TouchableOpacity
             style={styles.button}
             onPress={() => {
-              console.log("Add comment");
+              setCommentVisible(!isCommentVisible);
             }}
           >
-            <Text style={styles.text}>Add Comment</Text>
+            <Text style={styles.text}>Comment</Text>
           </TouchableOpacity>
         </View>
       </BottomSheetView>

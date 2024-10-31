@@ -1,3 +1,4 @@
+import Comment from "@/components/Comment";
 import SelectedBottomSheet from "@/components/SelectedBottomSheet";
 import { useProperty } from "@/providers/PropertyProvider";
 import { auth, db } from "@/services/firebaseConfig";
@@ -6,13 +7,15 @@ import Mapbox, {
   FillLayer,
   LocationPuck,
   MapView,
+  RasterLayer,
+  RasterSource,
   ShapeSource,
 } from "@rnmapbox/maps";
 import { OnPressEvent } from "@rnmapbox/maps/lib/typescript/src/types/OnPressEvent";
 import * as Location from "expo-location";
 import { doc, getDoc } from "firebase/firestore";
 import React, { useEffect, useState } from "react";
-import { Alert } from "react-native";
+import { Alert, StyleSheet } from "react-native";
 
 Mapbox.setAccessToken(process.env.EXPO_PUBLIC_MAPBOX_PUBLIC_KEY ?? "");
 
@@ -27,7 +30,13 @@ export default function MapScreen() {
   const [cameraBounds, setCameraBounds] = useState<CameraBounds | null>(null);
   const [fillColor, setFillColor] = useState("rgba(0, 0, 255, 0.5)");
   const [fillOutlineColor, setFillOutlineColor] = useState("blue");
-  const { isShapeSelected, toggleShapeSelection } = useProperty();
+  const [comment, setComment] = useState("");
+  const {
+    isShapeSelected,
+    toggleShapeSelection,
+    isCommentVisible,
+    setCommentVisible,
+  } = useProperty();
 
   useEffect(() => {
     (async () => {
@@ -95,11 +104,11 @@ export default function MapScreen() {
       if (isShapeSelected) {
         setFillColor("rgba(0, 0, 255, 0.5)");
         setFillOutlineColor("blue");
+        setCommentVisible(false);
       } else {
         setFillColor("rgba(255, 255, 0, 0.5)");
         setFillOutlineColor("yellow");
       }
-
       toggleShapeSelection();
     }
   };
@@ -159,8 +168,33 @@ export default function MapScreen() {
             />
           </ShapeSource>
         )}
+        <RasterSource
+          id="skogbruksplanSource"
+          tileUrlTemplates={[
+            "https://wms.nibio.no/cgi-bin/skogbruksplan?bbox={bbox-epsg-3857}&format=image/png&service=WMS&version=1.1.1&request=GetMap&srs=EPSG:3857&transparent=true&width=256&height=256&layers=hogstklasser",
+          ]}
+          tileSize={256}
+        >
+          <RasterLayer
+            id="skogbruksplanLayer"
+            sourceID="skogbruksplanSource"
+            style={{ rasterOpacity: 0.8 }}
+          />
+        </RasterSource>
       </MapView>
+      {isCommentVisible && (
+        <Comment comment={comment} setComment={setComment} />
+      )}
       <SelectedBottomSheet />
     </>
   );
 }
+
+const styles = StyleSheet.create({
+  button: {
+    backgroundColor: "green",
+    padding: 10,
+    borderRadius: 5,
+    alignItems: "center",
+  },
+});

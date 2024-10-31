@@ -1,11 +1,13 @@
 import React, { createContext, ReactNode, useContext, useState } from "react";
 
-interface SelectedShapeContextProps {
+interface PropertyContextProps {
   isShapeSelected: boolean;
   toggleShapeSelection: () => void;
+  isCommentVisible: boolean;
+  setCommentVisible: (visible: boolean) => void;
 }
 
-const PropertyContext = createContext<SelectedShapeContextProps | undefined>(
+const PropertyContext = createContext<PropertyContextProps | undefined>(
   undefined,
 );
 
@@ -13,13 +15,21 @@ export const PropertyProvider: React.FC<{ children: ReactNode }> = ({
   children,
 }) => {
   const [isShapeSelected, setIsShapeSelected] = useState(false);
+  const [isCommentVisible, setCommentVisible] = useState(false);
 
   const toggleShapeSelection = () => {
     setIsShapeSelected((prev) => !prev);
   };
 
   return (
-    <PropertyContext.Provider value={{ isShapeSelected, toggleShapeSelection }}>
+    <PropertyContext.Provider
+      value={{
+        isShapeSelected,
+        toggleShapeSelection,
+        isCommentVisible,
+        setCommentVisible,
+      }}
+    >
       {children}
     </PropertyContext.Provider>
   );
