@@ -4,7 +4,7 @@ import { auth, db } from "@/services/firebaseConfig";
 import { useRouter } from "expo-router";
 import { signOut } from "firebase/auth";
 import React, { useEffect, useState } from "react";
-import { Button, Image, StyleSheet, View } from "react-native";
+import { Image, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 
 import { HelloWave } from "@/components/HelloWave";
 import ParallaxScrollView from "@/components/ParallaxScrollView";
@@ -77,7 +77,9 @@ export default function HomeScreen() {
             <ThemedText>Lastname: {userData.lastName}</ThemedText>
           </View>
         )}
-        <Button title="Logout" onPress={handleLogout} />
+        <TouchableOpacity style={styles.button} onPress={handleLogout}>
+          <Text>Logout</Text>
+        </TouchableOpacity>
       </ThemedView>
     </ParallaxScrollView>
   ) : null;
@@ -109,5 +111,12 @@ const styles = StyleSheet.create({
     bottom: 0,
     left: 0,
     position: "absolute",
+  },
+  button: {
+    backgroundColor: "lightblue",
+    padding: 10,
+    marginTop: 16,
+    borderRadius: 5,
+    alignItems: "center",
   },
 });
