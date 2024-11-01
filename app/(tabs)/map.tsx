@@ -1,4 +1,5 @@
 import Comment from "@/components/Comment";
+import LayersControl from "@/components/LayersControl";
 import SelectedBottomSheet from "@/components/SelectedBottomSheet";
 import { useProperty } from "@/providers/PropertyProvider";
 import { auth, db } from "@/services/firebaseConfig";
@@ -15,7 +16,7 @@ import { OnPressEvent } from "@rnmapbox/maps/lib/typescript/src/types/OnPressEve
 import * as Location from "expo-location";
 import { doc, getDoc } from "firebase/firestore";
 import React, { useEffect, useState } from "react";
-import { Alert, StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { Alert, StyleSheet } from "react-native";
 
 Mapbox.setAccessToken(process.env.EXPO_PUBLIC_MAPBOX_PUBLIC_KEY ?? "");
 
@@ -190,22 +191,12 @@ export default function MapScreen() {
           </RasterSource>
         )}
       </MapView>
-      <View style={styles.layersMenu}>
-        <TouchableOpacity
-          style={styles.button}
-          onPress={() =>
-            setIsSkogbruksplanLayerVisible(!isSkogbruksplanLayerVisible)
-          }
-        >
-          <Text>Skogbruksplan</Text>
-        </TouchableOpacity>
-        <TouchableOpacity
-          style={{ ...styles.button, marginTop: 5 }}
-          onPress={() => setIsForestTeigLayerVisible(!isForestTeigLayerVisible)}
-        >
-          <Text>Matrikkel</Text>
-        </TouchableOpacity>
-      </View>
+      <LayersControl
+        isSkogbruksplanLayerVisible={isSkogbruksplanLayerVisible}
+        setIsSkogbruksplanLayerVisible={setIsSkogbruksplanLayerVisible}
+        isForestTeigLayerVisible={isForestTeigLayerVisible}
+        setIsForestTeigLayerVisible={setIsForestTeigLayerVisible}
+      />
       {isCommentVisible && (
         <Comment comment={comment} setComment={setComment} />
       )}
@@ -217,20 +208,5 @@ export default function MapScreen() {
 const styles = StyleSheet.create({
   map: {
     flex: 1,
-  },
-  button: {
-    backgroundColor: "lightblue",
-    padding: 10,
-    borderRadius: 5,
-    alignItems: "center",
-  },
-  layersMenu: {
-    position: "absolute",
-    bottom: 10,
-    left: 10,
-    backgroundColor: "white",
-    padding: 10,
-    borderRadius: 5,
-    elevation: 5,
   },
 });
